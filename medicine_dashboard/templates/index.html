@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Medicine Reminder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-panel {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .panel-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .status-card {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .status-card:hover {
+            transform: translateY(-5px);
+            background: #f0f1fa;
+        }
+
+        .status-label {
+            font-size: 0.9em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .status-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .indicator.active {
+            background-color: #2ecc71;
+        }
+
+        .indicator.inactive {
+            background-color: #e74c3c;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            display: inline-block;
+        }
+
+        .medicine-times-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .time-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 0.95em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .time-badge:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .time-badge .close {
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .time-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .time-input {
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .time-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .button-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .button-danger {
+            background: #e74c3c;
+            color: white;
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .button-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .button-success {
+            background: #2ecc71;
+            color: white;
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .button-success:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .alarm-demo {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .alarm-demo h3 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+
+        .alarm-demo p {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+        }
+
+        .current-time {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .last-alarm {
+            font-size: 0.95em;
+            color: #666;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alarm-button-big {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.3em;
+            margin: 20px 0;
+            animation: pulse-big 2s infinite;
+        }
+
+        @keyframes pulse-big {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .time-input-group {
+                flex-direction: column;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .button, .button-primary, .button-danger, .button-success {
+                width: 100%;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💊 Medicine Reminder</h1>
+            <p>Never miss your medications again</p>
+        </div>
+
+        <div class="main-panel">
+            <div class="panel-header">
+                <h2>System Status</h2>
+            </div>
+
+            <div class="status-grid">
+                <div class="status-card">
+                    <div class="status-label">Arduino Status</div>
+                    <div class="status-value">
+                        <span class="indicator inactive" id="arduino-indicator"></span>
+                        <span id="arduino-status">Disconnected</span>
+                    </div>
+                </div>
+                <div class="status-card">
+                    <div class="status-label">Alarm Status</div>
+                    <div class="status-value">
+                        <span class="indicator inactive" id="alarm-indicator"></span>
+                        <span id="alarm-status">Idle</span>
+                    </div>
+                </div>
+                <div class="status-card">
+                    <div class="status-label">Current Time</div>
+                    <div class="current-time" id="current-time">00:00:00</div>
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- Medicine Times Section -->
+                <div class="section">
+                    <h3 class="section-title">⏰ Medicine Schedule</h3>
+                    <div class="medicine-times-list" id="medicine-times-list"></div>
+                    
+                    <div class="time-input-group">
+                        <input type="time" id="medicine-time-input" class="time-input" placeholder="HH:MM">
+                        <button class="button button-primary" onclick="addMedicineTime()">Add Time</button>
+                    </div>
+                </div>
+
+                <!-- Last Alarm Section -->
+                <div class="section">
+                    <h3 class="section-title">📋 Last Alarm</h3>
+                    <div class="last-alarm" id="last-alarm">No alarm triggered yet</div>
+                </div>
+
+                <!-- Actions Section -->
+                <div class="section">
+                    <h3 class="section-title">🎛️ Controls</h3>
+                    
+                    <div id="alert" class="alert"></div>
+                    
+                    <div class="alarm-demo">
+                        <h3>Test Alarm (Manual Trigger)</h3>
+                        <p>Click the button below to manually trigger the alarm and test the buzzer + LED + popup:</p>
+                        <button class="button button-danger alarm-button-big" onclick="triggerAlarm()">
+                            🚨 TRIGGER ALARM NOW 🚨
+                        </button>
+                    </div>
+
+                    <div class="button-group" style="margin-top: 20px;">
+                        <button class="button button-danger" onclick="stopAlarm()">Stop Alarm</button>
+                        <button class="button button-success" onclick="testArduino()">Test Arduino Connection</button>
+                        <button class="button button-primary" onclick="location.reload()">Refresh Page</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Smart Medicine Reminder System v1.0 | Connect your Arduino to COM4 at 9600 baud</p>
+        </div>
+    </div>
+
+    <script>
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = 
+                now.toLocaleTimeString('en-US', { hour12: false });
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Load medicine times on page load
+        async function loadMedicineTimes() {
+            try {
+                const response = await fetch('/api/config/medicine-times');
+                const data = await response.json();
+                displayMedicineTimes(data.times);
+            } catch (error) {
+                console.error('Error loading medicine times:', error);
+            }
+        }
+
+        // Display medicine times
+        function displayMedicineTimes(times) {
+            const list = document.getElementById('medicine-times-list');
+            list.innerHTML = '';
+            
+            times.forEach(time => {
+                const badge = document.createElement('div');
+                badge.className = 'time-badge';
+                badge.innerHTML = `
+                    ⏰ ${time}
+                    <span class="close" onclick="removeMedicineTime('${time}')">✕</span>
+                `;
+                list.appendChild(badge);
+            });
+        }
+
+        // Add medicine time
+        async function addMedicineTime() {
+            const timeInput = document.getElementById('medicine-time-input');
+            const time = timeInput.value;
+
+            if (!time) {
+                showAlert('Please enter a time', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/config/medicine-times', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ times: [...getCurrentTimes(), time] })
+                });
+                const data = await response.json();
+                displayMedicineTimes(data.times);
+                timeInput.value = '';
+                showAlert('Medicine time added!', 'success');
+            } catch (error) {
+                console.error('Error adding medicine time:', error);
+                showAlert('Error adding medicine time', 'error');
+            }
+        }
+
+        // Remove medicine time
+        async function removeMedicineTime(time) {
+            const times = getCurrentTimes().filter(t => t !== time);
+            
+            try {
+                const response = await fetch('/api/config/medicine-times', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ times })
+                });
+                const data = await response.json();
+                displayMedicineTimes(data.times);
+                showAlert('Medicine time removed', 'success');
+            } catch (error) {
+                console.error('Error removing medicine time:', error);
+                showAlert('Error removing medicine time', 'error');
+            }
+        }
+
+        // Get current times from display
+        function getCurrentTimes() {
+            const badges = document.querySelectorAll('.time-badge');
+            return Array.from(badges).map(badge => 
+                badge.textContent.match(/\d{2}:\d{2}/)[0]
+            );
+        }
+
+        // Trigger alarm manually
+        async function triggerAlarm() {
+            try {
+                const response = await fetch('/api/alarm/trigger', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ medicine: 'Test Alarm' })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showAlert('🚨 ALARM TRIGGERED! Check your Arduino!', 'success');
+                    updateStatus();
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error triggering alarm:', error);
+                showAlert('Error triggering alarm', 'error');
+            }
+        }
+
+        // Stop alarm
+        async function stopAlarm() {
+            try {
+                await fetch('/api/alarm/stop', { method: 'POST' });
+                showAlert('Alarm stopped', 'success');
+                updateStatus();
+            } catch (error) {
+                console.error('Error stopping alarm:', error);
+                showAlert('Error stopping alarm', 'error');
+            }
+        }
+
+        // Test Arduino connection
+        async function testArduino() {
+            try {
+                const response = await fetch('/api/test/arduino');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showAlert('✓ Arduino connected successfully!', 'success');
+                } else {
+                    showAlert('❌ ' + data.message, 'error');
+                }
+                updateStatus();
+            } catch (error) {
+                console.error('Error testing Arduino:', error);
+                showAlert('Error testing Arduino connection', 'error');
+            }
+        }
+
+        // Update system status
+        async function updateStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+
+                // Update Arduino status
+                const arduinoIndicator = document.getElementById('arduino-indicator');
+                const arduinoStatus = document.getElementById('arduino-status');
+                if (data.connected) {
+                    arduinoIndicator.className = 'indicator active';
+                    arduinoStatus.textContent = 'Connected';
+                } else {
+                    arduinoIndicator.className = 'indicator inactive';
+                    arduinoStatus.textContent = 'Disconnected';
+                }
+
+                // Update alarm status
+                const alarmIndicator = document.getElementById('alarm-indicator');
+                const alarmStatus = document.getElementById('alarm-status');
+                if (data.alarm_active) {
+                    alarmIndicator.className = 'indicator active';
+                    alarmStatus.textContent = 'ACTIVE ⚠️';
+                } else {
+                    alarmIndicator.className = 'indicator inactive';
+                    alarmStatus.textContent = 'Idle';
+                }
+
+                // Update last alarm
+                if (data.last_alarm) {
+                    document.getElementById('last-alarm').textContent = 
+                        `Last triggered: ${data.last_alarm}`;
+                }
+            } catch (error) {
+                console.error('Error updating status:', error);
+            }
+        }
+
+        // Show alert message
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert show alert-${type}`;
+            
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 4000);
+        }
+
+        // Initialize on page load
+        loadMedicineTimes();
+        updateStatus();
+        setInterval(updateStatus, 2000); // Update every 2 seconds
+    </script>
+</body>
+</html>
